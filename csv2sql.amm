@@ -1,4 +1,0 @@
-#!env amm
-
-System.out.println("csv2sql")
-
