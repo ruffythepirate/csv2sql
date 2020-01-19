@@ -1,20 +1,38 @@
 #!env amm
+import java.io.{BufferedReader, InputStream, InputStreamReader}
+
 
 @doc("Takes an input as piped data and outputs it as input statements in sql.")
 @main
 def main(
           table: String @doc("Name of the table that the insert statements should be inserting data to."),
-          separator: String @doc("Separator character for the csv.) = ","
+          separator: String @doc("Separator character for the csv.") = ","
         ) = {
 
-  val columnDefinitions = findColumnDefinitions("hello varchar,world float")
+  val inputIterator = createInputIterator(System.in)
+  val columnDefinitions = findColumnDefinitions(inputIterator.next())
 
-  System.out.println(generateInsertStatement(table, "black, 1.2", columnDefinitions))
+  inputIterator
+    .takeWhile(_ != null)
+    .map( generateInsertStatement(table, _, columnDefinitions))
+    .foreach(System.out.println(_))
 
 }
 
 case class ColumnDefinition(name: String, valueConverter: String => String)
 
+def createInputIterator(in: InputStream) = {
+  val inputStreamReader = new InputStreamReader(in)
+  val bufferedReader = new BufferedReader(inputStreamReader)
+
+  val lineIterator = Iterator
+    .continually(bufferedReader.readLine)
+
+  if(!lineIterator.hasNext) {
+    throw new RuntimeException("Trying to start a input stream listener, but there is no data coming in. Please pipe data to this tool to use it!")
+  }
+  lineIterator
+}
 
 def findColumnDefinitions(columnRow: String) = {
   columnRow.split(",")
