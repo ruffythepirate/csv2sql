@@ -7,12 +7,14 @@ import java.text.SimpleDateFormat
 @main
 def main(
           table: String @doc("Name of the table that the insert statements should be inserting data to."),
+          database: String @doc("Name of the database where the table resides in. A use statement for this database will be generated on top."),
           separator: String @doc("Separator character for the csv.") = ","
         ) = {
 
   val inputIterator = createInputIterator(System.in)
   val columnDefinitions = findColumnDefinitions(inputIterator.next())
 
+  System.out.println(s"use $database;")
   inputIterator
     .takeWhile(_ != null)
     .map( generateInsertStatement(table, _, columnDefinitions))
@@ -86,5 +88,5 @@ def generateInsertStatement(table: String, rowToConvert: String, columnDefinitio
       }
       .mkString(",")
 
-  s"INSERT INTO $table ($columnNames) VALUES ($valueStatement)"
+  s"INSERT INTO $table ($columnNames) VALUES ($valueStatement);"
 }
