@@ -1,5 +1,6 @@
 #!env amm
 import java.io.{BufferedReader, InputStream, InputStreamReader}
+import java.text.SimpleDateFormat
 
 
 @doc("Takes an input as piped data and outputs it as input statements in sql.")
@@ -34,6 +35,7 @@ def createInputIterator(in: InputStream) = {
   lineIterator
 }
 
+
 def findColumnDefinitions(columnRow: String) = {
   columnRow.split(",")
     .map(_.trim)
@@ -47,10 +49,24 @@ def findColumnDefinitions(columnRow: String) = {
   })
 }
 
+val dateWithPattern = """date\((.*)\)""".r
+
+object DateUtils {
+  def convertDateStringToSqlDateString(s: String, format: String) = {
+    val dateFormat = new SimpleDateFormat(format)
+    val sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    sqlDateFormat.format(dateFormat.parse(s))
+  }
+}
+
 def findConvertMethod(dataType: String) = {
   dataType.toLowerCase() match {
+    case dateWithPattern(pattern) =>
+      fieldValue: String => s"'${DateUtils.convertDateStringToSqlDateString(fieldValue, pattern)}'"
+    case "date" =>
+      fieldValue: String => s"'$fieldValue'"
     case "varchar" =>
-      fieldValue: String => s"'$fieldValue''"
+      fieldValue: String => s"'$fieldValue'"
     case "float" =>
       fieldValue: String => fieldValue
     case _ =>
