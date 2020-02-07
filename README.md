@@ -11,8 +11,11 @@ podman run -e MYSQL_ROOT_PASSWORD=pass --name economy -p3306:3306 -d
 ```
 then connect to the db and create the db `economy` and the table `economy` and then run.
 ```
-cat testdata/Economy.csv| ./csv2sql.sc --table economy --database economy |  mysql -h127.0.0.1 -uroot -ppass
+cat testdata/Economy.csv | ./csv2sql.sc --table economy --database economy |  mysql -h127.0.0.1 -uroot -ppass
 ```
+You can also use the program from podman or docker (just replace podman with docker):
+
+`cat testdata/Economy.csv | podman run --rm -i csv2sql --table economy --database economy | mysql -h127.0.0.1 -uroot -ppass` 
 
 then you can open the database and query your data at will.
 

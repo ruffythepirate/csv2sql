@@ -1,3 +1,4 @@
+#! /usr/local/bin/amm
 import java.io.{BufferedReader, InputStream, InputStreamReader}
 import java.text.{NumberFormat, SimpleDateFormat}
 import java.util.Locale
@@ -85,7 +86,7 @@ def findConvertMethod(dataType: String, locale: Locale) = {
     case "date" =>
       fieldValue: String => s"'$fieldValue'"
     case "varchar" =>
-      fieldValue: String => s"'$fieldValue'"
+      fieldValue: String => s"'${fieldValue.replace("'", "\\'")}'"
     case "float" =>
       fieldValue: String => val num = NumberFormat.getInstance(locale).parse(fieldValue)
       num.floatValue().toString
